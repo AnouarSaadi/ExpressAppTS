@@ -3,6 +3,25 @@ import { UserInterface } from "../models/user.interface";
 import { User } from "../models/user.model";
 
 export class UserController {
+
+    /** 
+     * @Description this class is a singleton class, it have a single instance 
+    **/
+
+    private static userController: UserController;
+
+    public static getInstance(): UserController {
+        if (!UserController.userController) {
+            UserController.userController = new UserController();
+        }
+        return UserController.userController;
+    }
+
+    /** 
+     * @Param req Request
+     * @Param res Response
+     **/
+    
     public async register(req: Request, res: Response): Promise<void> {
         const data: User = req.body;
         const user = await User.create<User>({ name: data.name, email: data.email });

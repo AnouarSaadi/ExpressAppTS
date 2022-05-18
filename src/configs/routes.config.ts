@@ -1,13 +1,14 @@
 import { Application } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import { UserController } from '../controllers/user.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 export class Routes {
-    private userController: UserController = new UserController();
-    private authController: AuthController = new AuthController();
+    private userController: UserController = UserController.getInstance();
+    private authController: AuthController = AuthController.getInstance();
 
     constructor(app: Application) {
-        this.routes(app)
+        this.routes(app);
     }
 
     public routes(app: Application): void {
