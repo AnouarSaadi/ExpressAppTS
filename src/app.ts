@@ -1,21 +1,24 @@
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import { Routes } from './configs/routes.config';
 import { createServer } from 'http';
+import { authMiddleware } from './middleware/auth.middleware';
+import { UsersRoutes } from './routes/users.routes';
+import { RoutesConfig } from './config/routes.config';
+import { AuthRoutes } from './routes/auth.routes';
 
 const DEFAULT_PORT: number = 3001;
 export class App {
     private static app: App;
     private serverApp: Application;
     private server: any;
-    static routes: Routes;
+    private routes: Array<RoutesConfig> = [];
 
     constructor() {
         this.serverApp = express();
         this.server = createServer(this.serverApp);
         this.initializeMiddlewares();
-        this.initRoutes();
+        this.routes = this.initializeRoutes();
     }
 
     public static getInstance(): App {
@@ -36,7 +39,10 @@ export class App {
         });
     }
 
-    public initRoutes(): void {
-        App.routes = new Routes(this.serverApp);
+    private initializeRoutes(): Array<RoutesConfig> {
+        this.routes.push(UsersRoutes.getInstance(this.serverApp));
+        this.routes.push(AuthRoutes.getInstance(this.serverApp));
+
+        return this.routes;
     }
 }

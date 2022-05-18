@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { ReqUser } from "../interfaces/req-uset.interface";
+import { ReqUser } from "../interface/req-uset.interface";
 import { verify } from "jsonwebtoken";
 
 
@@ -14,4 +14,8 @@ export const authMiddleware = async (req: ReqUser, res: Response, next: NextFunc
             res.status(400).send(err);
         }
     }
+}
+
+export class AuthMiddleware {
+    
 }
