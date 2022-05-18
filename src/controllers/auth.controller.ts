@@ -8,6 +8,14 @@ dotenv.config();
 
 export class AuthController {
 
+    private static authController: AuthController;
+
+    public static getInstance(): AuthController {
+        if(!AuthController.authController) {
+            AuthController.authController = new AuthController();
+        }
+        return AuthController.authController;
+    }
     public login = async (req: Request, res: Response) => {
         const { name, email } = req.body;
         let user: User | null = await User.findOne<User>({
