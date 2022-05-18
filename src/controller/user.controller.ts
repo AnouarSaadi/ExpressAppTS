@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
-import { UserInterface } from "../models/user.interface";
-import { User } from "../models/user.model";
+import { UserInterface } from "../model/user.interface";
+import { User } from "../model/user.model";
 
 export class UserController {
 
     /** 
      * @Description this class is a singleton class, it have a single instance 
-    **/
-
+     **/
+    
     private static userController: UserController;
-
+    
+    constructor() {}
+    
     public static getInstance(): UserController {
         if (!UserController.userController) {
             UserController.userController = new UserController();
