@@ -25,44 +25,73 @@ export class AuthController {
      * @param res { Response }
      */
 
-    public handleAfterAuth = async (req: Request, res: Response) => {
-        console.log("Code --> ", req.user);
-        const userData: CreateUserDto | undefined = req.user;
-        if (userData) {
-            console.log("user: ", userData);
-            await User.findOne({
-                where: { email: userData.email }
-            }).then((user: User | null) => { })
-                .catch((err) => {
-
-                })
-        }
-        // const user = await User.findOne();
-        res.status(401).send("KO");
-
-        // res.send("ok from redirect");
-    }
-
-    public logout = async (req: Request, res: Response) => {
-        res.redirect('/auth');
-    }
-
-    public login = async (req: Request, res: Response) => {
-        const { name, email } = req.body;
-        let user: User | null = await User.findOne<User>({
-            where: {
-                email,
+    public handleAfterAuth = async (
+        req: Request,
+        res: Response
+    ) => {
+        try {
+            const userData: CreateUserDto | undefined = req.user;
+            if (userData) {
+                let user = await User.findOne({
+                    where: { email: userData.email }
+                });
+                if (!user) {
+                    user = await User.create<User>({
+                        email: userData.email,
+                        verified: userData.verified,
+                        name: userData.name,
+                        familyName: userData.familyName,
+                        givenName: userData.givenName,
+                        photo: userData.photo,
+                    });
+                }
+                const accessToken: string = await this.createToken(user);
+                res.status(200).send({ accessToken });
             }
-        });
-        if (!user) {
-            user = await User.create<User>({
-                name,
-                email,
-            });
+        } catch (err) {
+            res.status(500).send(err);
         }
-        const token = await this.createToken(user);
-        res.setHeader('Set-Cookie', [this.createCookie(token)]);
-        res.send(user);
+    }
+
+    public logout = async (
+        req: Request,
+        res: Response
+    ) => {
+        res.send('From logout method');
+    }
+
+    /**
+     * @method handleSignUpByForm use for the sign up manuely
+     * @param req express.Request
+     * @param res express.Response 
+     */
+
+    public handleSignUpByForm = async (
+        req: Request,
+        res: Response
+    ) => {
+        try {
+            const userData: CreateUserDto = req.body;
+            let user: User | null = await User.findOne<User>({
+                where: {
+                    email: userData.email,
+                }
+            });
+            if (!user) {
+                user = await User.create<User>({
+                    email: userData.email,
+                    verified: userData.verified,
+                    name: userData.name,
+                    familyName: userData.familyName,
+                    givenName: userData.givenName,
+                    photo: userData.photo,
+                });
+            }
+            const accessToken = await this.createToken(user);
+            res.status(201).send({accessToken});
+        } catch(err) {
+            res.status(500).send(err);
+        }
     }
 
     private createToken = async (user: User) => {
@@ -72,9 +101,5 @@ export class AuthController {
         return jwt.sign({ id, email }, `${jwtSecret}`, {
             expiresIn,
         });
-    }
-
-    private createCookie(token: string) {
-        return `Authorization=${token}; HttpOnly; Max-Age=${DotEnvConfig.JWT_EXPIRATION}`;
     }
 }
