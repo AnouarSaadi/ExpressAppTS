@@ -1,41 +1,50 @@
 import * as jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
 import { Request, Response } from "express";
-import { UserController } from "./user.controller";
 import { User } from "../model/user.model";
-import { google } from "googleapis";
-import googleApiConfig from "../config/google-api.config";
-
-dotenv.config();
+import { DotEnvConfig } from "../config/dot-env.config";
+import { ReqUser } from "../interface/req-user.interface";
+import { CreateUserDto } from "../dto/create-user.dto";
 
 export class AuthController {
 
     private static authController: AuthController;
-    private authCheck: boolean;
 
     constructor() {
-        this.authCheck = false;
     }
 
     public static getInstance(): AuthController {
-        if(!AuthController.authController) {
+        if (!AuthController.authController) {
             AuthController.authController = new AuthController();
         }
         return AuthController.authController;
     }
 
-    public auth = async (req: Request, res: Response) => {
-        let oauth2 = google.oauth2({version: 'v2', auth: googleApiConfig.getClientOAuth2()});
-        if (this.authCheck) {
-            let userInfo = await oauth2.userinfo.v2.me.get();
-            res.render('index', {buttonSpan: 'Sign out', url: 'http://localhost:3001/logout', userInfo: userInfo.data})
-        } else {
-            res.render('index', {buttonSpan: 'Sign in', url: googleApiConfig.getRedirectUrl(), userInfo: {}})
+    /**
+     * @method handleAfterAuth
+     * @param req { Request }
+     * @param res { Response }
+     */
+
+    public handleAfterAuth = async (req: Request, res: Response) => {
+        console.log("Code --> ", req.user);
+        const userData: CreateUserDto | undefined = req.user;
+        if (userData) {
+            console.log("user: ", userData);
+            await User.findOne({
+                where: { email: userData.email }
+            }).then((user: User | null) => { })
+                .catch((err) => {
+
+                })
         }
+        // const user = await User.findOne();
+        res.status(401).send("KO");
+
+        // res.send("ok from redirect");
     }
 
-    public redirect = async (req: Request, res: Response) => {
-        res.send('OK redirect');
+    public logout = async (req: Request, res: Response) => {
+        res.redirect('/auth');
     }
 
     public login = async (req: Request, res: Response) => {
@@ -57,8 +66,8 @@ export class AuthController {
     }
 
     private createToken = async (user: User) => {
-        const expiresIn = process.env.JWT_EXPIRATION;
-        const jwtSecret = process.env.JWT_SECRET;
+        const expiresIn = DotEnvConfig.JWT_EXPIRATION;
+        const jwtSecret = DotEnvConfig.JWT_SECRET;
         const { id, email } = user;
         return jwt.sign({ id, email }, `${jwtSecret}`, {
             expiresIn,
@@ -66,6 +75,6 @@ export class AuthController {
     }
 
     private createCookie(token: string) {
-        return `Authorization=${token}; HttpOnly; Max-Age=${process.env.JWT_EXPIRATION}`;
+        return `Authorization=${token}; HttpOnly; Max-Age=${DotEnvConfig.JWT_EXPIRATION}`;
     }
 }

@@ -1,5 +1,8 @@
 export interface CreateUserDto {
-    id?: number;
-    name?: string;
     email?: string;
+    verified?: boolean;
+    name?: string;
+    familyName?: string;
+    givenName?: string;
+    photo?: string;
 }
