@@ -1,7 +1,10 @@
 import { Application } from "express";
-import { RoutesConfig } from "../config/routes.config";
+import passport from "passport";import { RoutesConfig } from "../config/routes.config";
 import { AuthController } from "../controller/auth.controller";
 
+/**
+ * @Description The AuthRoutes use for routing at the authentication
+ */
 export class AuthRoutes extends RoutesConfig {
 
     private static authRoutes: AuthRoutes;
@@ -19,12 +22,21 @@ export class AuthRoutes extends RoutesConfig {
 
     public configureRoutes(authController: any): Application {
 
+        /**
+         * @Endpoint GET http://$host:$port/auth
+         * @Description use for authenticate the users with google api
+        */
         this.app.route('/auth')
-            .get(authController.auth)
-            .post(authController.login);
+            .get(passport.authenticate('google', { scope: ['email', 'profile'] }));
 
+        /**
+         * @Description the route use for handle the callback after authentication
+         */
         this.app.route('/auth/redirect')
-            .get(authController.redirect);
+            .get(passport.authenticate('google'), authController.handleAfterAuth);
+
+        this.app.route('/auth/logout')
+            .get(authController.logout);
 
         return this.app;
     }

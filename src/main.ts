@@ -1,11 +1,10 @@
 import { App } from "./app";
-import dotenv from "dotenv";
+import { DotEnvConfig } from "./config/dot-env.config";
 
-dotenv.config();
 const bootstrap = async () => {
     const app: App = App.getInstance();
 
-    app.listen(Number(process.env.SERVER_PORT));
+    app.listen(DotEnvConfig.PORT);
 }
 
 bootstrap();

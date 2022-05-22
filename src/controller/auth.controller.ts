@@ -1,71 +1,105 @@
 import * as jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
 import { Request, Response } from "express";
-import { UserController } from "./user.controller";
 import { User } from "../model/user.model";
-import { google } from "googleapis";
-import googleApiConfig from "../config/google-api.config";
-
-dotenv.config();
+import { DotEnvConfig } from "../config/dot-env.config";
+import { ReqUser } from "../interface/req-user.interface";
+import { CreateUserDto } from "../dto/create-user.dto";
 
 export class AuthController {
 
     private static authController: AuthController;
-    private authCheck: boolean;
 
     constructor() {
-        this.authCheck = false;
     }
 
     public static getInstance(): AuthController {
-        if(!AuthController.authController) {
+        if (!AuthController.authController) {
             AuthController.authController = new AuthController();
         }
         return AuthController.authController;
     }
 
-    public auth = async (req: Request, res: Response) => {
-        let oauth2 = google.oauth2({version: 'v2', auth: googleApiConfig.getClientOAuth2()});
-        if (this.authCheck) {
-            let userInfo = await oauth2.userinfo.v2.me.get();
-            res.render('index', {buttonSpan: 'Sign out', url: 'http://localhost:3001/logout', userInfo: userInfo.data})
-        } else {
-            res.render('index', {buttonSpan: 'Sign in', url: googleApiConfig.getRedirectUrl(), userInfo: {}})
-        }
-    }
+    /**
+     * @method handleAfterAuth
+     * @param req { Request }
+     * @param res { Response }
+     */
 
-    public redirect = async (req: Request, res: Response) => {
-        res.send('OK redirect');
-    }
-
-    public login = async (req: Request, res: Response) => {
-        const { name, email } = req.body;
-        let user: User | null = await User.findOne<User>({
-            where: {
-                email,
+    public handleAfterAuth = async (
+        req: Request,
+        res: Response
+    ) => {
+        try {
+            const userData: CreateUserDto | undefined = req.user;
+            if (userData) {
+                let user = await User.findOne({
+                    where: { email: userData.email }
+                });
+                if (!user) {
+                    user = await User.create<User>({
+                        email: userData.email,
+                        verified: userData.verified,
+                        name: userData.name,
+                        familyName: userData.familyName,
+                        givenName: userData.givenName,
+                        photo: userData.photo,
+                    });
+                }
+                const accessToken: string = await this.createToken(user);
+                res.status(200).send({ accessToken });
             }
-        });
-        if (!user) {
-            user = await User.create<User>({
-                name,
-                email,
-            });
+        } catch (err) {
+            res.status(500).send(err);
         }
-        const token = await this.createToken(user);
-        res.setHeader('Set-Cookie', [this.createCookie(token)]);
-        res.send(user);
+    }
+
+    public logout = async (
+        req: Request,
+        res: Response
+    ) => {
+        res.send('From logout method');
+    }
+
+    /**
+     * @method handleSignUpByForm use for the sign up manuely
+     * @param req express.Request
+     * @param res express.Response 
+     */
+
+    public handleSignUpByForm = async (
+        req: Request,
+        res: Response
+    ) => {
+        try {
+            const userData: CreateUserDto = req.body;
+            let user: User | null = await User.findOne<User>({
+                where: {
+                    email: userData.email,
+                }
+            });
+            if (!user) {
+                user = await User.create<User>({
+                    email: userData.email,
+                    verified: userData.verified,
+                    name: userData.name,
+                    familyName: userData.familyName,
+                    givenName: userData.givenName,
+                    photo: userData.photo,
+                });
+            }
+            const accessToken = await this.createToken(user);
+            res.status(201).send({accessToken});
+        } catch(err) {
+            res.status(500).send(err);
+        }
     }
 
     private createToken = async (user: User) => {
-        const expiresIn = process.env.JWT_EXPIRATION;
-        const jwtSecret = process.env.JWT_SECRET;
+        const expiresIn = DotEnvConfig.JWT_EXPIRATION;
+        const jwtSecret = DotEnvConfig.JWT_SECRET;
         const { id, email } = user;
         return jwt.sign({ id, email }, `${jwtSecret}`, {
             expiresIn,
         });
-    }
-
-    private createCookie(token: string) {
-        return `Authorization=${token}; HttpOnly; Max-Age=${process.env.JWT_EXPIRATION}`;
     }
 }
