@@ -1,12 +1,12 @@
 import { Application, Router } from "express";
-import { RoutesConfig } from "../config/routes.config";
-import { UserController } from "../controller/user.controller";
+import { RoutesConfig } from "../../config/routes.config";
+import { UsersController } from "../controller/users.controller";
 
 export class UsersRoutes extends RoutesConfig {
     private static usersRoutes: UsersRoutes;
 
     constructor(app: Application) {
-        super(app, 'UsersRoutes', UserController.getInstance());
+        super(app, 'UsersRoutes', UsersController.getInstance());
     }
 
     public static getInstance(app: Application): UsersRoutes {
@@ -16,13 +16,13 @@ export class UsersRoutes extends RoutesConfig {
         return UsersRoutes.usersRoutes;
     }
 
-    public configureRoutes(userController: any): Application {
+    public configureRoutes(usersController: any): Application {
         this.app.route('/api/users/')
-            .get(userController.findAll);
+            .get(usersController.findAll);
 
         this.app.route('/api/users/:userId')
-            .get(userController.findOne)
-            .delete(userController.deleteOne);
+            .get(usersController.findOne)
+            .delete(usersController.deleteOne);
 
         return this.app;
     }
