@@ -1,24 +1,28 @@
-import { Application, Router } from "express";
+import { Application } from "express";
+import { JwtMiddleware } from "../../auth/middleware/jwt.middleware";
 import { RoutesConfig } from "../../config/routes.config";
 import { UsersController } from "../controller/users.controller";
 
 export class UsersRoutes extends RoutesConfig {
     private static usersRoutes: UsersRoutes;
-
+    
     constructor(app: Application) {
-        super(app, 'UsersRoutes', UsersController.getInstance());
+        super(app, 'UsersRoutes');
     }
-
+    
     public static getInstance(app: Application): UsersRoutes {
         if (!UsersRoutes.usersRoutes) {
             UsersRoutes.usersRoutes = new UsersRoutes(app);
         }
         return UsersRoutes.usersRoutes;
     }
+    
+    public configureRoutes(): Application {
+        const usersController = UsersController.getInstance();
+        const jwtMiddleware = JwtMiddleware.getInstance();
 
-    public configureRoutes(usersController: any): Application {
         this.app.route('/api/users/')
-            .get(usersController.findAll);
+            .get(jwtMiddleware.validJWTNeeded, usersController.findAll);
 
         this.app.route('/api/users/:userId')
             .get(usersController.findOne)

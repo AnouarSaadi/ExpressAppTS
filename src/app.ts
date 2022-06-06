@@ -5,7 +5,6 @@ import { createServer } from 'http';
 import { UsersRoutes } from './users/routes/users.routes';
 import { RoutesConfig } from './config/routes.config';
 import { AuthRoutes } from './auth/routes/auth.routes';
-import * as path from 'path';
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
 import { DotEnvConfig } from './config/dot-env.config';

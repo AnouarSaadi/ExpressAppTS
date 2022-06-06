@@ -10,7 +10,7 @@ export class AuthRoutes extends RoutesConfig {
     private static authRoutes: AuthRoutes;
 
     constructor(app: Application) {
-        super(app, 'AuthRoutes', AuthController.getInstance());
+        super(app, 'AuthRoutes');
     }
 
     public static getInstance(app: Application): AuthRoutes {
@@ -20,7 +20,8 @@ export class AuthRoutes extends RoutesConfig {
         return AuthRoutes.authRoutes;
     }
 
-    public configureRoutes(authController: any): Application {
+    public configureRoutes(): Application {
+        const authController = AuthController.getInstance();
 
         /**
          * @Endpoint GET http://$host:$port/auth/google
