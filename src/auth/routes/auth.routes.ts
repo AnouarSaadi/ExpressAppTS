@@ -1,6 +1,7 @@
 import { Application } from "express";
 import passport from "passport"; import { RoutesConfig } from "../../config/routes.config";
 import { AuthController } from "../controller/auth.controller";
+import { JwtMiddleware } from "../middleware/jwt.middleware";
 
 /**
  * @Description The AuthRoutes use for routing at the authentication
@@ -22,6 +23,7 @@ export class AuthRoutes extends RoutesConfig {
 
     public configureRoutes(): Application {
         const authController = AuthController.getInstance();
+        const jwtMiddleware = JwtMiddleware.getInstance();
 
         /**
          * @Endpoint GET http://$host:$port/auth/google
@@ -37,7 +39,7 @@ export class AuthRoutes extends RoutesConfig {
             .get(passport.authenticate('google'), authController.handleAfterAuth);
 
         this.app.route('/auth/logout')
-            .get(authController.logout);
+            .get(jwtMiddleware.validJWTNeeded, authController.logout);
 
         return this.app;
     }

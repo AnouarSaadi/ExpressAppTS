@@ -25,8 +25,8 @@ export class UsersRoutes extends RoutesConfig {
             .get(jwtMiddleware.validJWTNeeded, usersController.findAll);
 
         this.app.route('/api/users/:userId')
-            .get(usersController.findOne)
-            .delete(usersController.deleteOne);
+            .get(jwtMiddleware.validJWTNeeded, usersController.findOne)
+            .delete(jwtMiddleware.validJWTNeeded, usersController.deleteOne);
 
         return this.app;
     }

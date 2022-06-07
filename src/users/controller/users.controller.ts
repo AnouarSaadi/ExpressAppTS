@@ -12,10 +12,7 @@ export class UsersController {
 
     private static usersController: UsersController;
 
-    private usersService: UsersService;
-
     constructor() {
-        this.usersService = UsersService.getInstance();
     }
 
     public static getInstance(): UsersController {
@@ -32,31 +29,31 @@ export class UsersController {
 
     public async register(req: Request, res: Response): Promise<any> {
         const userData: CreateUserDto = req.body;
-        const user = await this.usersService.addUser(userData);
+        const user = await UsersService.getInstance().addUser(userData);
         return res.status(200).send(user);
     }
 
     public async findOne(req: Request, res: Response): Promise<void> {
         const { userId } = req.params;
-        await this.usersService.findById(Number(userId)).then((user: User | null) => {
+        await UsersService.getInstance().findById(Number(userId)).then((user: User | null) => {
             if (user) {
-                res.status(200).json(user);
+                return res.status(200).json(user);
             } else {
-                res.status(404).json({ errors: "User not found" });
+                return res.status(404).json({ errors: "User not found" });
             }
         }).catch(err => {
-            res.status(500).json(err);
+            return res.status(500).json(err);
         });
     }
 
     public async findAll(req: Request, res: Response): Promise<any> {
-        const users = await this.usersService.findAll();
+        const users = await UsersService.getInstance().findAll();
         return res.status(200).send(users);
     }
 
     public async deleteOne(req: Request, res: Response): Promise<void> {
         const { userId } = req.params;
-        await this.usersService.deleteById(Number(userId))
+        await UsersService.getInstance().deleteById(Number(userId))
             .then((msg) => {
                 res.json({ success: true, message: msg });
             }).catch((err) => {
