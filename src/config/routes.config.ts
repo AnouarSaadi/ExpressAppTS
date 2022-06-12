@@ -9,13 +9,13 @@ export abstract class RoutesConfig {
      * @param name the name affected to the routes
      * @param controller the controller used at the route specified by name
      */
-    constructor(app: Application, name: string, controller: any) {
+    constructor(app: Application, name: string) {
         this.app = app;
         this.name = name;
-        this.configureRoutes(controller);
+        this.configureRoutes();
     }
     getRouteName() {
         return this.name;
     }
-    abstract configureRoutes(controller: any): Application;
+    abstract configureRoutes(): Application;
 }

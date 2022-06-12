@@ -2,14 +2,12 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
-import { UsersRoutes } from './routes/users.routes';
+import { UsersRoutes } from './users/routes/users.routes';
 import { RoutesConfig } from './config/routes.config';
-import { AuthRoutes } from './routes/auth.routes';
-import * as path from 'path';
+import { AuthRoutes } from './auth/routes/auth.routes';
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
 import { DotEnvConfig } from './config/dot-env.config';
-import { User } from './model/user.model';
 
 const DEFAULT_PORT: number = 3001;
 export class App {
