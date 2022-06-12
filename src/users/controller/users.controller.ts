@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { JwtMiddleware } from "../../auth/middleware/jwt.middleware";
 import { CreateUserDto } from "../../dto/create-user.dto";
+import { UpdateUserDto } from "../../dto/update-user.dto";
 import { User } from "../../model/user.model";
 import { UsersService } from "../service/users.service";
 
@@ -59,5 +60,15 @@ export class UsersController {
             }).catch((err) => {
                 res.status(401).json({ error: err });
             });
+    }
+
+    public async updateProfile(req: Request, res: Response): Promise<any> {
+        const { userId } = req.params;
+        const data: UpdateUserDto = req.body;
+        await UsersService.getInstance().updateUser(Number(userId), data)
+            .then((user) => { return res.status(200).json({ success: true, data: user })})
+            .catch((err) => {
+                return res.status(404).json({success: false, error: 'User not found'});
+            })
     }
 }

@@ -1,4 +1,5 @@
 import { CreateUserDto } from "../../dto/create-user.dto";
+import { UpdateUserDto } from "../../dto/update-user.dto";
 import { User } from "../../model/user.model";
 
 export class UsersService {
@@ -62,6 +63,15 @@ export class UsersService {
             return "user deleted";
         } catch (err) {
             throw err;
+        }
+    }
+
+    async updateUser(userId: number, data: UpdateUserDto): Promise<User | null | undefined> {
+        try {
+            await User.update(data, { where: { id: userId } });
+            return await User.findOne({ where: { id: userId } });
+        } catch (error) {
+            throw error;
         }
     }
 }

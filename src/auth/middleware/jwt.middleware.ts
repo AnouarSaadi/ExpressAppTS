@@ -20,21 +20,21 @@ export class JwtMiddleware {
         res: Response,
         next: NextFunction
     ) {
-        if(req.headers['authorization']) {
+        if (req.headers['authorization']) {
             try {
                 console.log(req.headers['authorization']);
                 const auth = req.headers['authorization'].split(' ');
                 if (auth[0] !== 'Bearer') {
-                    return res.status(401).send();
+                    return res.status(401).json({ error: 'Unauthorized' });
                 }
                 res.locals.jwt = jwt.verify(auth[1], `${DotEnvConfig.JWT_SECRET}`) as Jwt;
                 next();
             } catch (err) {
-                return res.status(403).send();
+                return res.status(403).json({ error: 'Invalid credentials!' });
             }
         }
         else {
-            return res.status(401).send('Unauthorized');
+            return res.status(401).json({ error: 'Unauthorized' });
         }
     }
 

@@ -41,7 +41,7 @@ export class AuthController {
                     user = await this.usersService.addUser(userData);
                 }
                 const accessToken: string = await this.authService.createToken(user);
-                res.status(200).send({ accessToken });
+                res.status(201).json({accessToken, user});
             }
         } catch (err) {
             res.status(500).send(err);
@@ -72,7 +72,7 @@ export class AuthController {
                 user = await this.usersService.addUser(userData);
             }
             const accessToken = await this.authService.createToken(user);
-            res.status(201).send({accessToken});
+            res.status(201).json({accessToken, user});
         } catch(err) {
             res.status(500).send(err);
         }
