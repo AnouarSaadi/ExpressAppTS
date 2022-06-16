@@ -23,7 +23,10 @@ export class UsersRoutes extends RoutesConfig {
         const jwtMiddleware = JwtMiddleware.getInstance();
 
         this.app.route('/api/users/')
-            .get(jwtMiddleware.validJWTNeeded, usersController.findAll);
+            .get(
+                jwtMiddleware.validJWTNeeded,
+                usersController.findAll
+            );
 
         this.app.route('/api/users/:userId')
             .all(jwtMiddleware.validJWTNeeded)
