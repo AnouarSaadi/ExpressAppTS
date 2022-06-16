@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import { DotEnvConfig } from "../../config/dot-env.config";
-import { User } from "../../model/user.model";
+import { User } from "../../users/model/user.model";
 
 export class AuthService {
     

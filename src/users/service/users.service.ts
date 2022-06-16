@@ -1,6 +1,6 @@
-import { CreateUserDto } from "../../dto/create-user.dto";
-import { UpdateUserDto } from "../../dto/update-user.dto";
-import { User } from "../../model/user.model";
+import { CreateUserDto } from "../dto/create-user.dto";
+import { UpdateUserDto } from "../dto/update-user.dto";
+import { User } from "../model/user.model";
 
 export class UsersService {
     private static usersService: UsersService;

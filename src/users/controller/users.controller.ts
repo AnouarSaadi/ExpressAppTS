@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { JwtMiddleware } from "../../auth/middleware/jwt.middleware";
-import { CreateUserDto } from "../../dto/create-user.dto";
-import { UpdateUserDto } from "../../dto/update-user.dto";
-import { User } from "../../model/user.model";
+import { CreateUserDto } from "../dto/create-user.dto";
+import { UpdateUserDto } from "../dto/update-user.dto";
+import { User } from "../model/user.model";
 import { UsersService } from "../service/users.service";
 
 export class UsersController {
