@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { DotEnvConfig } from "../../config/dot-env.config";
 import { CreateUserDto } from "../../users/dto/create-user.dto";
-import { User } from "../../users/model/user.model";
+import { User } from "../../users/dao/user.model";
 import { UsersService } from "../../users/service/users.service";
 import { AuthService } from "../service/auth.service";
 

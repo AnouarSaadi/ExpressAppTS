@@ -8,8 +8,12 @@ import { AuthRoutes } from './auth/routes/auth.routes';
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
 import { DotEnvConfig } from './config/dot-env.config';
+import * as winston from 'winston';
+import * as expressWinston from 'express-winston';
+import debug from 'debug';
 
 const DEFAULT_PORT: number = 3001;
+const logger: debug.IDebugger = debug('app');
 export class App {
     private static app: App;
     private serverApp: Application;
@@ -21,6 +25,7 @@ export class App {
         this.server = createServer(this.serverApp);
         this.setup();
         this.routes = this.initializeRoutes();
+        logger('Construction');
     }
 
     public static getInstance(): App {
@@ -32,7 +37,7 @@ export class App {
 
     public listen(port?: number): void {
         this.server.listen(port ?? DEFAULT_PORT, () => {
-            console.log(`Server is running on ${port}`);
+            logger(`Server is running on ${port}`);
         });
     }
 
@@ -52,7 +57,7 @@ export class App {
             clientSecret: DotEnvConfig.CLIENT_SECRET!,
             callbackURL: DotEnvConfig.CALLBACK_URI,
             passReqToCallback: true,
-        }, (req:any, accessToken: string, refreshToken: string, profile: any, done: Function): any => {
+        }, (req: any, accessToken: string, refreshToken: string, profile: any, done: Function): any => {
             const user = {
                 email: profile.emails[0].value,
                 verified: profile.emails[0].verified,
@@ -73,5 +78,25 @@ export class App {
         });
 
         this.serverApp.use(passport.initialize());
+
+        const loggerOptions: expressWinston.LoggerOptions = {
+            transports: [new winston.transports.Console()],
+            format: winston.format.combine(
+                winston.format.json(),
+                winston.format.prettyPrint(),
+                winston.format.colorize({ all: true })
+            ),
+        };
+        
+        if (!process.env.DEBUG) {
+            loggerOptions.meta = false; // when not debugging, make terse
+        }
+        
+        this.serverApp.use(expressWinston.logger(loggerOptions));
+
+        const runningMessage = `Server running at http://localhost:${DEFAULT_PORT}`;
+        this.serverApp.get('/', (req: express.Request, res: express.Response) => {
+            res.status(200).send(runningMessage)
+        });
     }
 }
